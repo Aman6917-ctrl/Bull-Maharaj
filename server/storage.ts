@@ -12,10 +12,17 @@ import {
   type StockPrediction
 } from "@shared/schema";
 
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
 export interface IStorage {
+  // Session store
+  sessionStore: session.Store;
+  
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Stock operations
@@ -46,6 +53,7 @@ export class MemStorage implements IStorage {
   private portfolioItems: Map<number, PortfolioItem>;
   private tradingHistory: Map<number, TradingHistory>;
   private stockPredictions: Map<number, StockPrediction>;
+  public sessionStore: session.Store;
   private currentIds: {
     users: number;
     stocks: number;
@@ -60,6 +68,13 @@ export class MemStorage implements IStorage {
     this.portfolioItems = new Map();
     this.tradingHistory = new Map();
     this.stockPredictions = new Map();
+    
+    // Initialize memory store for sessions
+    const MemoryStore = createMemoryStore(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // prune expired entries every 24h
+    });
+    
     this.currentIds = {
       users: 1,
       stocks: 1,
@@ -82,10 +97,21 @@ export class MemStorage implements IStorage {
       (user) => user.email === email
     );
   }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username
+    );
+  }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentIds.users++;
-    const user: User = { ...insertUser, id, isActive: true };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      isActive: true,
+      fullName: insertUser.fullName || null 
+    };
     this.users.set(id, user);
     return user;
   }

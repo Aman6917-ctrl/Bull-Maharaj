@@ -1,77 +1,21 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { loginSchema } from "@shared/schema";
-import session from "express-session";
 import { tradingBot } from "./model/tradingBot";
 import { getMarketOverview, getMarketSentiment } from "./utils/marketData";
-
-const ONE_HOUR = 1000 * 60 * 60;
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Session middleware setup
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || "tradesage-secret-key",
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false, maxAge: ONE_HOUR * 24 }, // 24 hours
-    })
-  );
+  // Setup authentication - this will add all the needed middleware and routes
+  setupAuth(app);
 
   // Authentication middleware
   const authenticate = (req: Request, res: Response, next: Function) => {
-    if (!req.session.userId) {
+    if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     next();
   };
-
-  // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const result = loginSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ 
-          message: "Invalid email or password format",
-          errors: result.error.format()
-        });
-      }
-
-      const { email, password } = result.data;
-      const user = await storage.getUserByEmail(email);
-
-      if (!user || user.password !== password) {
-        return res.status(401).json({ message: "Invalid email or password" });
-      }
-
-      // Save userId in session
-      req.session.userId = user.id;
-      
-      return res.status(200).json({
-        message: "Login successful",
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          fullName: user.fullName
-        }
-      });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "An error occurred during login" });
-    }
-  });
-
-  app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Logout failed" });
-      }
-      res.clearCookie("connect.sid");
-      res.status(200).json({ message: "Logout successful" });
-    });
-  });
 
   // Market Overview routes
   app.get("/api/market/overview", async (req, res) => {
@@ -114,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio routes (protected)
   app.get("/api/portfolio", authenticate, async (req, res) => {
     try {
-      const userId = req.session.userId as number;
+      const userId = req.user!.id;
       const portfolioItems = await storage.getPortfolioByUserId(userId);
       
       // Enrich portfolio items with stock details
@@ -138,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Trading History routes (protected)
   app.get("/api/trading-history", authenticate, async (req, res) => {
     try {
-      const userId = req.session.userId as number;
+      const userId = req.user!.id;
       const history = await storage.getTradingHistoryByUserId(userId);
       
       // Enrich trading history with stock details
