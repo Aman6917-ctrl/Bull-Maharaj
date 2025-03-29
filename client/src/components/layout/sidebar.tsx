@@ -14,9 +14,9 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   return (
     <div className="hidden md:flex md:flex-shrink-0">
-      <div className="flex flex-col w-64 bg-[#0F172A] text-white">
+      <div className="flex flex-col w-64 bg-primary-900 text-white">
         <div className="flex items-center justify-center h-16 bg-primary-900">
-          <span className="text-xl font-bold">TradeSage AI</span>
+          <span className="text-xl font-bold">Bull Maharaj</span>
         </div>
         <div className="flex flex-col flex-grow overflow-y-auto">
           <nav className="flex-1 px-2 py-4 space-y-1">

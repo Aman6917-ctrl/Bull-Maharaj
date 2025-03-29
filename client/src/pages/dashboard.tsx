@@ -58,9 +58,9 @@ export default function Dashboard() {
         />
         
         {/* Mobile Navigation (hidden by default) */}
-        <div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'} bg-dark text-white`}>
+        <div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'} bg-primary-900 text-white`}>
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium bg-primary-800 text-white">Dashboard</a>
+            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium bg-primary-700 text-white">Dashboard</a>
             <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary-800 hover:text-white">AI Trading Bot</a>
             <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary-800 hover:text-white">Analysis</a>
             <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary-800 hover:text-white">Portfolio</a>
@@ -80,7 +80,7 @@ export default function Dashboard() {
         <main className="flex-1 overflow-y-auto bg-gray-50">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Bull Maharaj Dashboard</h1>
             </div>
             
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

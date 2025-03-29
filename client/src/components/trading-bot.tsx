@@ -78,8 +78,8 @@ export default function TradingBot() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-medium text-gray-900">AI Trading Bot</h2>
         <div className="flex space-x-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <span className="h-2 w-2 rounded-full bg-green-500 mr-1.5"></span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+            <span className="h-2 w-2 rounded-full bg-primary-500 mr-1.5"></span>
             Bot Active
           </span>
           <Button variant="outline" size="sm">
@@ -141,7 +141,7 @@ export default function TradingBot() {
                     <>
                       <div>
                         <p className="text-sm font-medium text-gray-500">Total Return</p>
-                        <p className="text-2xl font-semibold text-green-600">
+                        <p className="text-2xl font-semibold text-primary-600">
                           +{performance?.totalReturnPercentage.toFixed(1)}%
                         </p>
                       </div>
@@ -179,7 +179,7 @@ export default function TradingBot() {
                     })) || []}
                     xAxisKey="x"
                     yAxisKey="y"
-                    color="#3B82F6"
+                    color="hsl(0, 72%, 43%)"
                   />
                 )}
               </div>
@@ -233,7 +233,7 @@ export default function TradingBot() {
                         {trade.stock.symbol}
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap text-sm ${
-                        trade.action === "BUY" ? "text-green-600" : "text-red-600"
+                        trade.action === "BUY" ? "text-primary-600" : "text-red-600"
                       }`}>
                         {trade.action}
                       </td>
@@ -254,7 +254,7 @@ export default function TradingBot() {
                         })} IST
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap text-sm ${
-                        (trade.profitLoss || 0) > 0 ? "text-green-600" : "text-red-600"
+                        (trade.profitLoss || 0) > 0 ? "text-primary-600" : "text-red-600"
                       }`}>
                         {(trade.profitLoss || 0) > 0 ? '+' : ''}
                         ₹{(trade.profitLoss || 0).toLocaleString('en-IN')}

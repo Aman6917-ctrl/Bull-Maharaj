@@ -61,7 +61,7 @@ export default function MarketOverview() {
           <Card
             key={i}
             className={`p-4 border-l-4 ${
-              index.changePercent > 0 ? 'border-green-500' : 'border-red-500'
+              index.changePercent > 0 ? 'border-primary-500' : 'border-red-500'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -71,7 +71,7 @@ export default function MarketOverview() {
               </div>
               <div
                 className={`text-sm font-medium ${
-                  index.changePercent > 0 ? 'text-green-600' : 'text-red-600'
+                  index.changePercent > 0 ? 'text-primary-600' : 'text-red-600'
                 }`}
               >
                 {index.changePercent > 0 ? '+' : ''}

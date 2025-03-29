@@ -43,7 +43,7 @@ export default function Login() {
       if (response.ok) {
         toast({
           title: "Login successful",
-          description: "Welcome to TradeSage AI",
+          description: "Welcome to Bull Maharaj",
         });
         navigate("/dashboard");
       } else {
@@ -69,8 +69,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center p-4 md:p-0 bg-gradient-to-br from-primary-900 to-primary-700">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative z-10 border border-gray-200">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-800 mb-2">TradeSage AI</h1>
-          <p className="text-gray-600">Reinforcement Learning Stock Trading Platform</p>
+          <h1 className="text-3xl font-bold text-primary-800 mb-2">Bull Maharaj</h1>
+          <p className="text-gray-600">AI-Powered Indian Stock Market Trading Platform</p>
         </div>
 
         <Form {...form}>
