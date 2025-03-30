@@ -9,10 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowRight } from "lucide-react";
+
+// Demo credentials
+const DEMO_CREDENTIALS = {
+  email: "demo@bullmaharaj.com",
+  password: "demo123"
+};
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(5, "Password must be at least 5 characters"),
   remember: z.boolean().optional(),
 });
 
@@ -35,7 +42,7 @@ export default function Login() {
     defaultValues: {
       email: "",
       password: "",
-      remember: false,
+      remember: true,
     },
   });
 
@@ -45,6 +52,27 @@ export default function Login() {
       password: data.password
     });
   }
+
+  // Function to fill in demo credentials
+  const useDemo = () => {
+    form.setValue("email", DEMO_CREDENTIALS.email);
+    form.setValue("password", DEMO_CREDENTIALS.password);
+    // Submit the form with demo credentials
+    setTimeout(() => {
+      form.handleSubmit(onSubmit)();
+    }, 200);
+  };
+
+  // Handle login errors
+  useEffect(() => {
+    if (loginMutation.isError) {
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive"
+      });
+    }
+  }, [loginMutation.isError, toast]);
 
   return (
     <div>
@@ -60,6 +88,7 @@ export default function Login() {
                   <Input 
                     placeholder="Enter your email" 
                     type="email"
+                    autoComplete="email"
                     {...field}
                   />
                 </FormControl>
@@ -78,6 +107,7 @@ export default function Login() {
                   <Input 
                     placeholder="Enter your password" 
                     type="password"
+                    autoComplete="current-password"
                     {...field}
                   />
                 </FormControl>
@@ -106,9 +136,14 @@ export default function Login() {
                 </div>
               )}
             />
-            <a href="#" className="text-sm font-medium text-primary-700 hover:text-primary-500">
-              Forgot password?
-            </a>
+            <Button 
+              type="button" 
+              variant="link" 
+              className="text-sm text-primary-700 hover:text-primary-500 p-0 h-auto"
+              onClick={useDemo}
+            >
+              Use Demo Account
+            </Button>
           </div>
 
           <Button
@@ -116,17 +151,19 @@ export default function Login() {
             className="w-full bg-primary-700 hover:bg-primary-800"
             disabled={loginMutation.isPending}
           >
-            {loginMutation.isPending ? "Signing in..." : "Sign In"}
+            {loginMutation.isPending ? (
+              <span className="flex items-center justify-center">
+                <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full"></span>
+                Signing in...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center">
+                Sign In <ArrowRight className="ml-2 h-4 w-4" />
+              </span>
+            )}
           </Button>
         </form>
       </Form>
-
-      {/* Demo credentials note */}
-      <div className="mt-4 p-3 bg-gray-50 rounded-md text-sm text-gray-600 border border-gray-200">
-        <p className="font-medium mb-1">Demo Credentials:</p>
-        <p>Email: demo@example.com</p>
-        <p>Password: password123</p>
-      </div>
     </div>
   );
 }

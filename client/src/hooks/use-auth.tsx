@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -15,6 +16,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  demoLoginMutation: UseMutationResult<SelectUser, Error, void>;
 };
 
 type LoginData = Pick<InsertUser, "email" | "password">;
@@ -29,7 +31,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   } = useQuery<SelectUser | null, Error>({
     queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: async ({ signal }) => {
+      try {
+        const res = await fetch('/api/user', { signal });
+        if (res.status === 401) {
+          return null;
+        }
+        if (!res.ok) {
+          throw new Error(`Error fetching user: ${res.statusText}`);
+        }
+        return await res.json();
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Query was canceled, this is expected behavior
+          throw error;
+        }
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error('Unknown error occurred');
+      }
+    },
   });
 
   const loginMutation = useMutation({
@@ -94,15 +116,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Demo login mutation
+  const demoLoginMutation = useMutation<SelectUser, Error, void>({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/demo-login");
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Demo login failed");
+      }
+      return data;
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(["/api/user"], user);
+      toast({
+        title: "Demo Login Successful",
+        description: `Welcome to Bull Maharaj! You're using a demo account with full access to all features.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Demo Login Failed",
+        description: error.message || "Could not access demo account. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: user || null, // Ensure user is never undefined
         isLoading,
         error,
         loginMutation,
         logoutMutation,
         registerMutation,
+        demoLoginMutation,
       }}
     >
       {children}

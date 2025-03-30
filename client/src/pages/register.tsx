@@ -8,13 +8,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { ArrowRight, UserPlus } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
+
+// DEMO_CREDENTIALS is not needed here as we want users to create new accounts
+// or use the demo login button on the main auth page
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Please enter a valid email"),
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
+  password: z.string().min(5, "Password must be at least 5 characters"),
+  confirmPassword: z.string().min(5, "Confirm password must be at least 5 characters"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -33,6 +39,9 @@ export default function Register() {
       navigate('/');
     }
   }, [user, navigate]);
+
+  // Get demo login mutation from auth context
+  const { demoLoginMutation } = useAuth();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -54,6 +63,17 @@ export default function Register() {
     });
   }
 
+  // Handle registration errors
+  useEffect(() => {
+    if (registerMutation.isError) {
+      toast({
+        title: "Registration Failed",
+        description: "This username or email may already be in use.",
+        variant: "destructive"
+      });
+    }
+  }, [registerMutation.isError, toast]);
+
   return (
     <div>
       <Form {...form}>
@@ -67,6 +87,7 @@ export default function Register() {
                 <FormControl>
                   <Input 
                     placeholder="Choose a username" 
+                    autoComplete="username"
                     {...field}
                   />
                 </FormControl>
@@ -85,6 +106,7 @@ export default function Register() {
                   <Input 
                     placeholder="Enter your email" 
                     type="email"
+                    autoComplete="email"
                     {...field}
                   />
                 </FormControl>
@@ -101,7 +123,8 @@ export default function Register() {
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="Enter your full name" 
+                    placeholder="Enter your full name"
+                    autoComplete="name" 
                     {...field}
                   />
                 </FormControl>
@@ -120,6 +143,7 @@ export default function Register() {
                   <Input 
                     placeholder="Create a password" 
                     type="password"
+                    autoComplete="new-password"
                     {...field}
                   />
                 </FormControl>
@@ -138,6 +162,7 @@ export default function Register() {
                   <Input 
                     placeholder="Confirm your password" 
                     type="password"
+                    autoComplete="new-password"
                     {...field}
                   />
                 </FormControl>
@@ -146,12 +171,33 @@ export default function Register() {
             )}
           />
 
+          <div className="pt-2 pb-2">
+            <Button 
+              type="button" 
+              variant="link" 
+              className="text-sm text-primary-700 hover:text-primary-500 p-0 h-auto"
+              onClick={() => demoLoginMutation.mutate()}
+              disabled={demoLoginMutation.isPending}
+            >
+              Skip registration and use demo account instead
+            </Button>
+          </div>
+
           <Button
             type="submit"
-            className="w-full mt-6 bg-primary-700 hover:bg-primary-800"
+            className="w-full bg-primary-700 hover:bg-primary-800"
             disabled={registerMutation.isPending}
           >
-            {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+            {registerMutation.isPending ? (
+              <span className="flex items-center justify-center">
+                <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full"></span>
+                Creating Account...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center">
+                Create Account <UserPlus className="ml-2 h-4 w-4" />
+              </span>
+            )}
           </Button>
         </form>
       </Form>
