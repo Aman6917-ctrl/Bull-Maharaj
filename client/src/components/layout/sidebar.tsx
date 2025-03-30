@@ -21,48 +21,71 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         <div className="flex flex-col flex-grow overflow-y-auto">
           <nav className="flex-1 px-2 py-4 space-y-1">
             <Link href="/dashboard">
-              <a className={`flex items-center px-4 py-3 text-sm font-medium rounded-md ${
-                isActive("/dashboard") 
+              <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md cursor-pointer ${
+                isActive("/dashboard") || isActive("/")
                   ? "bg-primary-800 text-white" 
                   : "text-gray-300 hover:bg-primary-800 hover:text-white"
               }`}>
                 <ChartLine className="mr-3 h-5 w-5" />
                 Dashboard
-              </a>
+              </div>
             </Link>
-            <a href="#" className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white">
-              <Bot className="mr-3 h-5 w-5" />
-              AI Trading Bot
-            </a>
-            <a href="#" className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white">
-              <Search className="mr-3 h-5 w-5" />
-              Analysis
-            </a>
-            <a href="#" className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white">
-              <Briefcase className="mr-3 h-5 w-5" />
-              Portfolio
-            </a>
-            <a href="#" className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white">
-              <Newspaper className="mr-3 h-5 w-5" />
-              Market News
-            </a>
-            <a href="#" className="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white">
+            <Link href="/trading-bot">
+              <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md cursor-pointer ${
+                isActive("/trading-bot")
+                  ? "bg-primary-800 text-white" 
+                  : "text-gray-300 hover:bg-primary-800 hover:text-white"
+              }`}>
+                <Bot className="mr-3 h-5 w-5" />
+                AI Trading Bot
+              </div>
+            </Link>
+            <Link href="/analysis">
+              <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md cursor-pointer ${
+                isActive("/analysis")
+                  ? "bg-primary-800 text-white" 
+                  : "text-gray-300 hover:bg-primary-800 hover:text-white"
+              }`}>
+                <Search className="mr-3 h-5 w-5" />
+                Analysis
+              </div>
+            </Link>
+            <Link href="/portfolio">
+              <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md cursor-pointer ${
+                isActive("/portfolio")
+                  ? "bg-primary-800 text-white" 
+                  : "text-gray-300 hover:bg-primary-800 hover:text-white"
+              }`}>
+                <Briefcase className="mr-3 h-5 w-5" />
+                Portfolio
+              </div>
+            </Link>
+            <Link href="/market">
+              <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md cursor-pointer ${
+                isActive("/market")
+                  ? "bg-primary-800 text-white" 
+                  : "text-gray-300 hover:bg-primary-800 hover:text-white"
+              }`}>
+                <Newspaper className="mr-3 h-5 w-5" />
+                Market News
+              </div>
+            </Link>
+            <div className={`flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-800 hover:text-white`}>
               <Settings className="mr-3 h-5 w-5" />
               Settings
-            </a>
+            </div>
           </nav>
           <div className="p-4 border-t border-gray-700">
-            <a
-              href="#"
+            <div
               onClick={(e) => {
                 e.preventDefault();
                 onLogout();
               }}
-              className="flex items-center text-sm font-medium text-gray-300 hover:text-white"
+              className="flex items-center text-sm font-medium text-gray-300 hover:text-white cursor-pointer"
             >
               <LogOut className="mr-3 h-5 w-5" />
               Logout
-            </a>
+            </div>
           </div>
         </div>
       </div>
