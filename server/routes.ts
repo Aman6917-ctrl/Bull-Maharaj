@@ -1,8 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { tradingBot } from "./model/tradingBot";
-import { getMarketOverview, getMarketSentiment } from "./utils/marketData";
+import { tradingBot, TradingStrategy } from "./model/tradingBot";
+import { getMarketOverview, getMarketSentiment, getStockPriceChartData } from "./utils/marketData";
 import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -52,6 +52,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching stock:", error);
       res.status(500).json({ message: "Failed to fetch stock" });
+    }
+  });
+
+  app.get("/api/stocks/:id/chart", async (req, res) => {
+    try {
+      const stockId = parseInt(req.params.id);
+      const days = req.query.days ? parseInt(req.query.days as string) : 30;
+      
+      const stock = await storage.getStock(stockId);
+      if (!stock) {
+        return res.status(404).json({ message: "Stock not found" });
+      }
+      
+      const chartData = await getStockPriceChartData(stock.symbol, days);
+      res.status(200).json(chartData);
+    } catch (error) {
+      console.error("Error fetching stock chart data:", error);
+      res.status(500).json({ message: "Failed to fetch stock chart data" });
     }
   });
 
@@ -134,6 +152,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching trading bot performance:", error);
       res.status(500).json({ message: "Failed to fetch trading bot performance" });
+    }
+  });
+
+  // Get trading bot status
+  app.get("/api/trading-bot/status", authenticate, async (req, res) => {
+    try {
+      const isActive = tradingBot.isBotActive();
+      res.status(200).json({ active: isActive });
+    } catch (error) {
+      console.error("Error fetching trading bot status:", error);
+      res.status(500).json({ message: "Failed to fetch trading bot status" });
+    }
+  });
+
+  // Toggle trading bot status
+  app.post("/api/trading-bot/toggle", authenticate, async (req, res) => {
+    try {
+      const isActive = tradingBot.toggleBotStatus();
+      res.status(200).json({ active: isActive });
+    } catch (error) {
+      console.error("Error toggling trading bot status:", error);
+      res.status(500).json({ message: "Failed to toggle trading bot status" });
+    }
+  });
+
+  // Get trading decision for a stock
+  app.get("/api/trading-bot/decision/:stockId", authenticate, async (req, res) => {
+    try {
+      const stockId = parseInt(req.params.stockId);
+      const decision = await tradingBot.generateTradingDecision(stockId);
+      res.status(200).json(decision);
+    } catch (error) {
+      console.error("Error generating trading decision:", error);
+      res.status(500).json({ message: "Failed to generate trading decision" });
+    }
+  });
+
+  // Set trading strategy
+  app.post("/api/trading-bot/strategy", authenticate, async (req, res) => {
+    try {
+      const { strategy } = req.body;
+      
+      // Validate strategy
+      if (!["MOVING_AVERAGE", "RSI", "MACD", "BOLLINGER", "REINFORCEMENT_LEARNING"].includes(strategy)) {
+        return res.status(400).json({ message: "Invalid strategy" });
+      }
+      
+      tradingBot.setStrategy(strategy as TradingStrategy);
+      res.status(200).json({ strategy, success: true });
+    } catch (error) {
+      console.error("Error setting trading strategy:", error);
+      res.status(500).json({ message: "Failed to set trading strategy" });
+    }
+  });
+
+  // Execute a trade
+  app.post("/api/trading-bot/execute-trade", authenticate, async (req, res) => {
+    try {
+      const { stockId, action, quantity } = req.body;
+      const userId = req.user!.id;
+      
+      // Basic validation
+      if (!stockId || !action || !quantity) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      // Validate action
+      if (!["BUY", "SELL", "HOLD"].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+      }
+      
+      const success = await tradingBot.executeTrade(userId, stockId, action, quantity);
+      
+      if (success) {
+        res.status(200).json({ success: true, message: "Trade executed successfully" });
+      } else {
+        res.status(400).json({ success: false, message: "Failed to execute trade" });
+      }
+    } catch (error) {
+      console.error("Error executing trade:", error);
+      res.status(500).json({ message: "Failed to execute trade" });
+    }
+  });
+
+  // Update learning parameters
+  app.post("/api/trading-bot/learning-parameters", authenticate, async (req, res) => {
+    try {
+      const { learningRate, explorationRate } = req.body;
+      
+      tradingBot.updateLearningParameters(learningRate, explorationRate);
+      res.status(200).json({ 
+        success: true, 
+        message: "Learning parameters updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating learning parameters:", error);
+      res.status(500).json({ message: "Failed to update learning parameters" });
     }
   });
 

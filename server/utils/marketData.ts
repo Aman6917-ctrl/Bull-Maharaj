@@ -1,4 +1,11 @@
-import { MARKET_INDICES, MARKET_SENTIMENT, generateChartData } from './constants';
+import { 
+  MARKET_INDICES, 
+  MARKET_SENTIMENT, 
+  SECTOR_PERFORMANCE, 
+  generateChartData, 
+  generateOHLCVData,
+  INDIAN_STOCKS
+} from './constants';
 
 /**
  * Fetches market overview data
@@ -19,9 +26,18 @@ export async function getMarketOverview() {
  */
 export async function getMarketSentiment() {
   // In a real implementation, this would use ML models
-  // For now, return mock data
   return {
     ...MARKET_SENTIMENT,
+    lastUpdated: new Date().toISOString()
+  };
+}
+
+/**
+ * Fetches sector performance data
+ */
+export async function getSectorPerformance() {
+  return {
+    sectors: SECTOR_PERFORMANCE,
     lastUpdated: new Date().toISOString()
   };
 }
@@ -30,29 +46,61 @@ export async function getMarketSentiment() {
  * Fetches performance chart data for the trading bot
  */
 export async function getBotPerformanceChartData() {
-  // Generate mock performance data
   // In a real implementation, this would be calculated from actual bot performance
   return generateChartData(30, "up");
 }
 
 /**
  * Fetches stock price chart data
+ * Returns data in a simple date/value format suitable for line charts
  */
 export async function getStockPriceChartData(stockSymbol: string, days: number = 30) {
-  // In a real implementation, this would fetch historical data from external APIs
-  // For now, generate mock data based on stock symbol
-  // Use the last character of the symbol to determine the trend
-  const lastChar = stockSymbol.charAt(stockSymbol.length - 1);
-  const lastDigit = parseInt(lastChar) || 0;
+  // First get the detailed OHLCV data
+  const ohlcvData = generateOHLCVData(stockSymbol, days);
   
-  let trend: "up" | "down" | "volatile";
-  if (lastDigit < 3) {
-    trend = "down";
-  } else if (lastDigit < 7) {
-    trend = "volatile";
-  } else {
-    trend = "up";
-  }
+  // Transform it to a simpler format for basic charts
+  return ohlcvData.map((item: { date: string; close: number }) => ({
+    date: item.date,
+    value: item.close
+  }));
+}
+
+/**
+ * Fetches detailed stock OHLCV (Open, High, Low, Close, Volume) data
+ * Returns full candlestick chart data for advanced charts
+ */
+export async function getStockOHLCVData(stockSymbol: string, days: number = 180) {
+  // In a real implementation, this would fetch data from an external API
+  // For now, generate realistic data based on known Indian stocks
+  return generateOHLCVData(stockSymbol, days);
+}
+
+/**
+ * Fetches historical stock price data in a format suitable for the trading bot
+ */
+export async function getHistoricalStockData(stockId: number, days: number = 180) {
+  // In a real system, we would look up the symbol from the stockId
+  // For now, map stockId to some predefined symbols
+  const stockSymbols = ['TCS', 'RELIANCE', 'HDFCBANK', 'INFY', 'ICICIBANK', 'TATASTEEL'];
+  const symbol = stockSymbols[stockId - 1] || 'TCS';
   
-  return generateChartData(days, trend);
+  // Get OHLCV data and transform to the format needed by the trading bot
+  const ohlcvData = await getStockOHLCVData(symbol, days);
+  
+  return ohlcvData;
+}
+
+/**
+ * Get available stocks with details
+ */
+export function getAvailableStocks() {
+  return Object.keys(INDIAN_STOCKS).map(symbol => {
+    const stockInfo = INDIAN_STOCKS[symbol];
+    return {
+      symbol,
+      baseValue: stockInfo.baseValue,
+      volatility: stockInfo.volatility * 100, // Convert to percentage
+      trend: stockInfo.trend * 100 // Convert to percentage
+    };
+  });
 }
