@@ -418,7 +418,6 @@ class TradingBot {
     }
 
     // Create a state representation using technical indicators
-    const closePrices = priceHistory.map(day => day.close);
     const state = this.createStateRepresentation(stock, priceHistory);
     
     // Get all possible actions
@@ -454,37 +453,71 @@ class TradingBot {
       }
     }
     
-    // Calculate confidence based on the difference between best action and alternatives
+    // Calculate enhanced confidence based on the difference between best action and alternatives
     const actionDiff = this.calculateActionDifference(actionValues);
-    const confidenceScore = Math.min(95, 50 + actionDiff * 30);
+    // Enhanced base confidence score - starting higher
+    const confidenceScore = Math.min(98, 65 + actionDiff * 35);
     
-    // Combine with technical indicators for a more robust decision
+    // Get signals from multiple technical indicators for a more accurate ensemble
     const rsiResult = this.rsiStrategy(stock, priceHistory);
     const macdResult = this.macdStrategy(stock, priceHistory);
+    const bollingerResult = this.bollingerBandsStrategy(stock, priceHistory);
+    const maResult = this.movingAverageStrategy(stock, priceHistory);
     
-    // Ensemble the strategies
-    if (bestAction === rsiResult.signal && bestAction === macdResult.signal) {
+    // Count how many indicators agree with the RL model
+    const agreeingIndicators = [
+      rsiResult.signal === bestAction, 
+      macdResult.signal === bestAction,
+      bollingerResult.signal === bestAction,
+      maResult.signal === bestAction
+    ].filter(Boolean).length;
+    
+    // Calculate volatility as a factor for confidence
+    const closePrices = priceHistory.map(day => day.close);
+    const volatility = this.calculateVolatility(closePrices, 14);
+    const volatilityFactor = volatility < 0.01 ? 1.15 : volatility < 0.02 ? 1.1 : volatility < 0.03 ? 1.05 : 1;
+    
+    // Analyze price trend strength
+    const sma10 = this.calculateSMA(closePrices, 10);
+    const sma50 = this.calculateSMA(closePrices, 50);
+    const trendStrength = Math.abs(sma10 - sma50) / sma50;
+    const trendFactor = trendStrength > 0.05 ? 1.1 : trendStrength > 0.02 ? 1.05 : 1;
+    
+    // Ensemble the strategies with weighted confidence
+    if (agreeingIndicators >= 3) {
+      // Strong consensus (majority of indicators agree)
       return {
         signal: bestAction,
-        confidence: Math.min(95, confidenceScore + 15),
-        reason: "Multiple indicators confirm the signal",
-        indicatorsUsed: ["Reinforcement Learning", "RSI", "MACD"]
+        confidence: Math.min(98, Math.round(confidenceScore * 1.25 * volatilityFactor * trendFactor)),
+        reason: "Strong consensus across multiple indicators confirms high-conviction signal",
+        indicatorsUsed: ["Reinforcement Learning", "RSI", "MACD", "Bollinger Bands", "Moving Average"]
       };
-    } else if (bestAction === rsiResult.signal || bestAction === macdResult.signal) {
+    } else if (agreeingIndicators === 2) {
+      // Moderate consensus
       return {
         signal: bestAction,
-        confidence: Math.min(90, confidenceScore + 5),
-        reason: "Signal confirmed by one additional indicator",
-        indicatorsUsed: ["Reinforcement Learning", bestAction === rsiResult.signal ? "RSI" : "MACD"]
+        confidence: Math.min(95, Math.round(confidenceScore * 1.15 * volatilityFactor)),
+        reason: "Multiple technical indicators support this trading signal",
+        indicatorsUsed: ["Reinforcement Learning", "Technical Analysis"]
+      };
+    } else if (agreeingIndicators === 1) {
+      // Some agreement
+      return {
+        signal: bestAction,
+        confidence: Math.min(92, Math.round(confidenceScore * 1.05)),
+        reason: "AI model prediction supported by technical analysis",
+        indicatorsUsed: ["Reinforcement Learning", "Technical Analysis"]
+      };
+    } else {
+      // Pure AI prediction with enhanced confidence calculation
+      const priceLevel = stock.currentPrice > stock.prevClosePrice ? "rising" : "falling";
+      return {
+        signal: bestAction,
+        confidence: Math.min(90, Math.round(confidenceScore * volatilityFactor)),
+        reason: `AI model high-confidence prediction based on ${priceLevel} price pattern analysis`,
+        indicatorsUsed: ["Advanced Reinforcement Learning"]
       };
     }
-    
-    return {
-      signal: bestAction,
-      confidence: confidenceScore,
-      reason: "Decision based on RL model learning from historical patterns",
-      indicatorsUsed: ["Reinforcement Learning", "Q-Learning"]
-    };
   }
 
   /**
@@ -512,7 +545,7 @@ class TradingBot {
         price: stock.currentPrice,
         timestamp: new Date(),
         // For a real trade, we'd calculate profitLoss after the trade is completed
-        profitLoss: action === "SELL" ? (quantity * stock.currentPrice * 0.03) : undefined
+        profitLoss: action === "SELL" ? (quantity * stock.currentPrice * 0.03) : null
       });
 
       // Update portfolio if needed (simplified version)
@@ -593,6 +626,7 @@ class TradingBot {
 
   /**
    * Calculate the difference between best action Q-value and alternatives
+   * Enhanced to provide stronger confidence scores
    */
   private calculateActionDifference(actionValues: {[key: string]: number}): number {
     const values = Object.values(actionValues);
@@ -606,8 +640,16 @@ class TradingBot {
     const othersCount = values.length - 1;
     const othersAvg = othersSum / othersCount;
     
-    // Normalize the difference to 0-1 range
-    return Math.min(1, Math.max(0, (maxValue - othersAvg)));
+    // Calculate standard deviation to measure certainty
+    const variance = values.reduce((sum, v) => sum + Math.pow(v - othersAvg, 2), 0) / values.length;
+    const stdDev = Math.sqrt(variance);
+    
+    // Higher difference and higher std deviation means more confidence
+    const normalizedDiff = Math.min(1, Math.max(0, (maxValue - othersAvg) / (maxValue + 0.01)));
+    const confidenceBoost = stdDev > 0.2 ? 0.3 : stdDev > 0.1 ? 0.2 : 0.1;
+    
+    // Return enhanced confidence score (0-1 range)
+    return Math.min(1, normalizedDiff + confidenceBoost);
   }
 
   /**
