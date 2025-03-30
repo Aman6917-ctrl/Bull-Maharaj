@@ -96,27 +96,65 @@ export default function TradingBot() {
   // Query trading bot status
   const { data: botStatus, isLoading: isLoadingStatus } = useQuery<{ active: boolean }>({
     queryKey: ['/api/trading-bot/status'],
+    queryFn: async () => {
+      const res = await fetch('/api/trading-bot/status');
+      if (!res.ok) {
+        throw new Error("Failed to fetch bot status");
+      }
+      return await res.json();
+    },
   });
 
   // Query performance metrics
   const { data: performance, isLoading: isLoadingPerformance } = useQuery<BotPerformanceMetrics>({
     queryKey: ['/api/trading-bot/performance'],
+    queryFn: async () => {
+      const res = await fetch('/api/trading-bot/performance');
+      if (!res.ok) {
+        throw new Error("Failed to fetch performance metrics");
+      }
+      return await res.json();
+    },
   });
 
   // Query trading history
   const { data: tradingHistory, isLoading: isLoadingHistory } = useQuery<TradingHistoryItem[]>({
     queryKey: ['/api/trading-history'],
+    queryFn: async () => {
+      const res = await fetch('/api/trading-history');
+      if (!res.ok) {
+        throw new Error("Failed to fetch trading history");
+      }
+      return await res.json();
+    },
   });
 
   // Query stocks
   const { data: stocks, isLoading: isLoadingStocks } = useQuery<Stock[]>({
     queryKey: ['/api/stocks'],
+    queryFn: async () => {
+      const res = await fetch('/api/stocks');
+      if (!res.ok) {
+        throw new Error("Failed to fetch stocks");
+      }
+      return await res.json();
+    },
   });
 
   // Query trading decision for selected stock
   const { data: tradingDecision, isLoading: isLoadingDecision } = useQuery<TradingDecision>({
     queryKey: ['/api/trading-bot/decision', activeStock],
     enabled: !!activeStock,
+    queryFn: async () => {
+      if (!activeStock) {
+        throw new Error("No stock selected");
+      }
+      const res = await fetch(`/api/trading-bot/decision/${activeStock}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch trading decision");
+      }
+      return await res.json();
+    },
   });
 
   // Mutation to toggle bot status
