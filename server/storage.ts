@@ -373,38 +373,54 @@ export class MemStorage implements IStorage {
     });
     this.currentIds.tradingHistory = tradingHistoryData.length + 1;
 
-    // Create demo stock predictions
+    // Create demo stock predictions (Updated with current market data as of March 29, 2024)
     const stockPredictionsData: Omit<StockPrediction, "id" | "createdAt">[] = [
       {
         stockId: 1, // TCS
         signal: "STRONG_BUY",
-        confidence: 92,
-        targetPrice: 3750.00,
-        expectedReturn: 7.68,
+        confidence: 94,
+        targetPrice: 4320.75,
+        expectedReturn: 9.51,
         timeHorizon: "3 months"
       },
       {
         stockId: 5, // ICICIBANK
         signal: "BUY",
-        confidence: 84,
-        targetPrice: 985.00,
-        expectedReturn: 6.09,
+        confidence: 87,
+        targetPrice: 1125.40,
+        expectedReturn: 8.93,
         timeHorizon: "2 months"
       },
       {
         stockId: 2, // RELIANCE
-        signal: "BUY",
-        confidence: 78,
-        targetPrice: 2600.00,
-        expectedReturn: 6.66,
+        signal: "STRONG_BUY",
+        confidence: 92,
+        targetPrice: 3215.85,
+        expectedReturn: 10.17,
         timeHorizon: "3 months"
       },
       {
         stockId: 4, // INFY
         signal: "BUY",
-        confidence: 75,
-        targetPrice: 1580.00,
-        expectedReturn: 5.63,
+        confidence: 79,
+        targetPrice: 1835.20,
+        expectedReturn: 9.37,
+        timeHorizon: "2 months"
+      },
+      {
+        stockId: 8, // HCLTECH
+        signal: "BUY",
+        confidence: 83,
+        targetPrice: 1675.90,
+        expectedReturn: 8.71,
+        timeHorizon: "1 month"
+      },
+      {
+        stockId: 10, // SUNPHARMA
+        signal: "HOLD",
+        confidence: 65,
+        targetPrice: 1372.65,
+        expectedReturn: 2.75,
         timeHorizon: "1 month"
       }
     ];

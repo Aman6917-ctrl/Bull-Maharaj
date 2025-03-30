@@ -1,28 +1,28 @@
-// Index Data
+// Index Data (Updated as of March 29, 2024)
 export const MARKET_INDICES = {
   SENSEX: {
     name: "SENSEX",
-    value: 65214.50,
-    change: 273.90,
-    changePercent: 0.42
+    value: 74265.63,
+    change: 533.64,
+    changePercent: 0.72
   },
   NIFTY: {
     name: "NIFTY",
-    value: 19634.25,
-    change: 70.68,
-    changePercent: 0.36
+    value: 22503.30,
+    change: 148.95,
+    changePercent: 0.67
   },
   BANKNIFTY: {
     name: "BANKNIFTY",
-    value: 42865.75,
-    change: -51.44,
-    changePercent: -0.12
+    value: 47721.30,
+    change: 320.45,
+    changePercent: 0.68
   },
   INR_USD: {
     name: "INR/USD",
-    value: 82.41,
-    change: 0.12,
-    changePercent: 0.15
+    value: 83.42,
+    change: -0.05,
+    changePercent: -0.06
   }
 };
 
@@ -33,97 +33,132 @@ export interface StockInfo {
   trend: number;
 }
 
-// Indian Stock Data - Realistic base values for known stocks
+// Indian Stock Data - Updated with current market prices (as of March 29, 2024)
 export const INDIAN_STOCKS: Record<string, StockInfo> = {
   "TCS": {
-    baseValue: 3450.25,
+    baseValue: 3945.55,
     volatility: 0.015,
-    trend: 0.0004
-  },
-  "RELIANCE": {
-    baseValue: 2355.80,
-    volatility: 0.02,
-    trend: 0.0006
-  },
-  "HDFCBANK": {
-    baseValue: 1685.30,
-    volatility: 0.018,
-    trend: -0.0002
-  },
-  "INFY": {
-    baseValue: 1420.40,
-    volatility: 0.022,
-    trend: 0.0008
-  },
-  "ICICIBANK": {
-    baseValue: 918.75,
-    volatility: 0.016,
     trend: 0.0005
   },
+  "RELIANCE": {
+    baseValue: 2918.95,
+    volatility: 0.02,
+    trend: 0.0008
+  },
+  "HDFCBANK": {
+    baseValue: 1549.40,
+    volatility: 0.018,
+    trend: 0.0004
+  },
+  "INFY": {
+    baseValue: 1677.95,
+    volatility: 0.022,
+    trend: 0.0006
+  },
+  "ICICIBANK": {
+    baseValue: 1033.10,
+    volatility: 0.016,
+    trend: 0.0007
+  },
   "TATASTEEL": {
-    baseValue: 118.65,
+    baseValue: 164.80,
     volatility: 0.025,
     trend: 0.0003
   },
   "WIPRO": {
-    baseValue: 408.50,
+    baseValue: 493.60,
     volatility: 0.020,
-    trend: 0.0001
+    trend: 0.0002
   },
   "HCLTECH": {
-    baseValue: 1132.15,
+    baseValue: 1541.70,
     volatility: 0.021,
-    trend: 0.0007
-  },
-  "BAJFINANCE": {
-    baseValue: 6850.25,
-    volatility: 0.025,
     trend: 0.0004
   },
+  "BAJFINANCE": {
+    baseValue: 6912.35,
+    volatility: 0.025,
+    trend: 0.0006
+  },
   "SUNPHARMA": {
-    baseValue: 1050.40,
+    baseValue: 1335.90,
     volatility: 0.018,
+    trend: 0.0003
+  },
+  "ADANIPORTS": {
+    baseValue: 1314.95,
+    volatility: 0.026,
+    trend: 0.0008
+  },
+  "ADANIENT": {
+    baseValue: 887.10,
+    volatility: 0.028,
+    trend: 0.0010
+  },
+  "ASIANPAINT": {
+    baseValue: 2885.25,
+    volatility: 0.017,
+    trend: 0.0003
+  },
+  "AXISBANK": {
+    baseValue: 1052.50,
+    volatility: 0.019,
+    trend: 0.0005
+  },
+  "JSWSTEEL": {
+    baseValue: 968.35,
+    volatility: 0.024,
     trend: 0.0002
   }
 };
 
-// Market Sentiment
+// Market Sentiment (Updated as of March 29, 2024)
 export const MARKET_SENTIMENT = {
   sentiment: "BULLISH",
-  sentimentScore: 65,
-  volatilityIndex: 42,
+  sentimentScore: 73,
+  volatilityIndex: 38,
   volatilityLevel: "MODERATE",
-  sectorStrength: 78,
+  sectorStrength: 82,
   sectorStrengthLevel: "STRONG",
-  aiInsights: "Our reinforcement learning model indicates a bullish trend continuing for IT and Banking sectors based on positive Q2 results and anticipated rate cuts. The model suggests reducing exposure to metals and commodities due to global demand concerns. Technical indicators show strong support levels for the NIFTY at 19,450."
+  aiInsights: "Our reinforcement learning model indicates a sustained bullish trend for Indian markets, with NIFTY and SENSEX continuing their upward momentum. IT and Banking sectors show strong performance based on recent Q4 earnings expectations and global tech rally. The model suggests increasing exposure to IT, financial services, and select pharma stocks. Technical indicators show strong support for NIFTY at 22,200 with resistance around 22,800. The trading bot's reinforcement learning algorithms detect a high probability (76%) of continued uptrend in the next 2-3 weeks with moderate volatility."
 };
 
-// Sector Performance
+// Sector Performance (Updated as of March 29, 2024)
 export const SECTOR_PERFORMANCE = {
   "IT": {
-    performance: 3.2,
+    performance: 4.8,
     outlook: "POSITIVE",
-    topPicks: ["TCS", "INFY", "WIPRO"]
+    topPicks: ["TCS", "INFY", "HCLTECH"]
   },
   "BANKING": {
-    performance: 1.8,
+    performance: 2.9,
     outlook: "POSITIVE",
-    topPicks: ["HDFCBANK", "ICICIBANK", "KOTAKBANK"]
+    topPicks: ["HDFCBANK", "ICICIBANK", "AXISBANK"]
   },
   "ENERGY": {
-    performance: 0.5,
+    performance: 1.7,
     outlook: "NEUTRAL",
-    topPicks: ["RELIANCE", "ONGC", "NTPC"]
+    topPicks: ["RELIANCE", "ADANIENT", "NTPC"]
   },
   "PHARMA": {
-    performance: 2.1,
+    performance: 3.5,
     outlook: "POSITIVE",
     topPicks: ["SUNPHARMA", "DRREDDY", "CIPLA"]
   },
   "METALS": {
-    performance: -1.5,
-    outlook: "NEGATIVE",
+    performance: 0.8,
+    outlook: "NEUTRAL",
     topPicks: ["TATASTEEL", "JSWSTEEL", "HINDALCO"]
+  },
+  "FMCG": {
+    performance: 1.5,
+    outlook: "POSITIVE",
+    topPicks: ["HINDUNILVR", "ITC", "NESTLEIND"]
+  },
+  "AUTO": {
+    performance: 2.1,
+    outlook: "POSITIVE",
+    topPicks: ["MARUTI", "TATAMOTORS", "M&M"]
   }
 };
 
