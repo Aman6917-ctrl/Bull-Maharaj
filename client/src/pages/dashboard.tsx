@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/layout/sidebar";
@@ -16,14 +16,14 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      const response = await apiRequest("POST", "/api/auth/logout", {});
+      const response = await apiRequest("POST", "/api/logout", {});
       
       if (response.ok) {
         toast({
           title: "Logout successful",
           description: "You have been logged out",
         });
-        navigate("/login");
+        navigate("/auth");
       } else {
         toast({
           title: "Logout failed",
