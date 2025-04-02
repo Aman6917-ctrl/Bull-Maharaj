@@ -1,3 +1,7 @@
+"scripts": {
+  "build": "vite build",
+  "start": "vite preview"
+}
 {
   "name": "rest-express",
   "version": "1.0.0",
